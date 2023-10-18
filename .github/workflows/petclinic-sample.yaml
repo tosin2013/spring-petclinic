@@ -134,7 +134,7 @@ jobs:
           IMAGE: ${{ env.IMAGE_PATH }}
         with:
           app_name: ${{ env.APP_NAME }}
-          image:  ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_REGISTRY_NAMESPACE }}/${{ env.APP_NAME }}:${{ env.TAG }}
+          image:  ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_REGISTRY_NAMESPACE }}/ ${{ env.APP_NAME }}:latest
           namespace: ${{ secrets.OPENSHIFT_NAMESPACE }}
           build_env: |
             MY_ENV=MY_VALUE
