@@ -71,7 +71,7 @@ jobs:
 
       - name: Run the built container
         run: |
-          docker run -d --name test-container -p 8080:8080 $APP_NAME:latest
+          docker run -d --name test-container -p 8080:8080  ${{ env.APP_NAME }}:${{ env.SHA }}
           sleep 10  # Give some time for the app to start up
     
       - name: Print Docker logs
