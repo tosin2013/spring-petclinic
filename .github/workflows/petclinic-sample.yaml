@@ -123,18 +123,12 @@ jobs:
           insecure_skip_tls_verify: true
           namespace: ${{ secrets.OPENSHIFT_NAMESPACE }}
 
-      - name: Create Image stream from the image
-        if: ${{ env.IMAGE_PATH == 'IMAGE_STREAM' }}
-        run: |
-          oc create is ${{ env.APP_NAME }}-${{ github.run_id }}
-          oc import-image ${{ env.APP_NAME }}-${{ github.run_id }} --from ${{ env.IMAGE_PATH }}
-
             
       # This step will create a deployment, service, and route to run your app and expose it to the internet.
       - name: Create and expose app
         id: oc-new-app
-        # uses: redhat-actions/oc-new-app@v1 Test the checked-out version of this action - a user would need the above 'uses'.
-        uses: ./
+        uses: redhat-actions/oc-new-app@v1 #Test the checked-out version of this action - a user would need the above 'uses'.
+        # uses: ./
         env:
           IMAGE: ${{ env.IMAGE_PATH }}
         with:
