@@ -1,4 +1,52 @@
-build-and-test-image:
+name: Docker Build and Test Workflow
+on: [ pull_request, push, workflow_dispatch ]
+env:
+  APP_NAME: petclinic
+  APP_PORT: 8080
+
+jobs:
+  compile:
+    name: Compile
+    runs-on: ubuntu-20.04
+    outputs:
+      jarname: ${{ steps.get-jarname.outputs.jarname }}
+      commit_sha: ${{ steps.commit-data.outputs.short_sha }}
+    env:
+      TARGET_DIR: target/
+      MVN_REPO_DIR: ~/.m2/repository
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v2
+        with:
+          distribution: temurin
+          java-version: 11
+          cache: maven
+
+      - run: java -version
+
+      - run: mvn -ntp -B package
+
+      - name: Get jar filename
+        id: get-jarname
+        run: |
+          export JAR_NAME="$(basename $(ls target/*.jar))"
+          echo "Petclinic jar is $JAR_NAME"
+          echo "::set-output name=jarname::$JAR_NAME"
+          echo "JAR_NAME=$JAR_NAME" >> $GITHUB_ENV
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: ${{ env.JAR_NAME }}
+          path: ${{ env.TARGET_DIR }}/${{ env.JAR_NAME }}
+          if-no-files-found: error
+
+      - name: Get commit short-sha
+        id: commit-data
+        uses: redhat-actions/common/commit-data@v1
+
+  build-and-test-image:
     name: Build and Test Image
     runs-on: ubuntu-20.04
     needs: compile
@@ -7,30 +55,25 @@ build-and-test-image:
       IMAGE_NAME: ${{ env.APP_NAME }}:latest
     steps:
       - uses: actions/checkout@v4
-  
-      # Download the jar artifact from the compile step
+
       - uses: actions/download-artifact@v2
         with:
           name: ${{ env.JAR_NAME }}
-  
-      # The dockerfile expects the jar to be under target/
+
       - name: Prepare directory structure
         run: |
           mkdir target/
           mv -v ${{ env.JAR_NAME }} target/
-  
-      # Build the Docker image using Docker directly
+
       - name: Build Docker Image
         run: |
           docker build -t ${{ env.IMAGE_NAME }} .
-  
-      # Run the built Docker container
+
       - name: Run the built container
         run: |
           docker run -d -p 8080:8080 ${{ env.IMAGE_NAME }}
           sleep 10  # Give some time for the app to start up
-  
-      # Test the running application
+
       - name: Test the running application
         run: |
-          curl -v http://localhost:8080 
+          curl -s http://localhost:8080 | grep 'Some expected string in your homepage'
