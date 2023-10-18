@@ -112,6 +112,7 @@ jobs:
     needs: build-push-image
     env:
       IMAGE_PATH: ${{ needs.build-push-image.outputs.registry-path }}
+      TAG: ${{ needs.build-push-image.outputs.tags }}
     steps:
 
       # Setup oc CLI
@@ -133,7 +134,7 @@ jobs:
           IMAGE: ${{ env.IMAGE_PATH }}
         with:
           app_name: ${{ env.APP_NAME }}
-          image: ${{ env.IMAGE }}
+          image:  ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_REGISTRY_NAMESPACE }}/${{ env.APP_NAME }}:${{ env.TAG }}
           namespace: ${{ secrets.OPENSHIFT_NAMESPACE }}
           build_env: |
             MY_ENV=MY_VALUE
