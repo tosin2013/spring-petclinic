@@ -72,17 +72,17 @@ jobs:
       IMAGE_TAGS: latest ${{ needs.compile.outputs.commit_sha }}
     steps:
       # Download the jar artifact from the compile step
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         with:
           name: ${{ env.JAR_NAME }}
 
+      - name: Prepare directory structure
+        run: |
+          mkdir target/
+          mv -v ${{ env.JAR_NAME }} target/
+
       - name: List directory contents
         run: ls -lath . && pwd
-
-     # Exit pipeline 
-      - name: Exit pipeline
-        if: github.event_name == 'workflow_dispatch'
-        run: exit 0
 
       # Use buildah to build the application image with the jar inside.
       - name: Build Image
@@ -93,7 +93,7 @@ jobs:
           tags: ${{ env.IMAGE_TAGS }}
           oci: true
           base-image: docker.io/fabric8/java-alpine-openjdk11-jre
-          content: .
+          content: target/
           entrypoint: java -jar spring-petclinic*.jar
           port: ${{ env.APP_PORT }}
 
