@@ -105,6 +105,19 @@ jobs:
 
       # For deploying to OpenShift, see https://github.com/redhat-actions/oc-new-app/blob/main/.github/workflows/example.yml
         #####################################################################################################################
+
+      - name: Run the built container
+        run: |
+          docker run -d --name test-container -p 8080:8080   ${{ steps.build-image.outputs.image }}:${{ steps.build-image.outputs.tags }}
+          sleep 10  # Give some time for the app to start up
+
+      - name: Print Docker logs
+        run: |
+          docker logs test-container
+         
+      - name: Test the running application
+        run: |
+          curl -vvv http://localhost:8080 
   ## The deploy-to-openshift job deploys the container image to an OpenShift cluster.
   deploy-to-openshift:
     name: Deploy to OpenShift
