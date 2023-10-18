@@ -87,3 +87,12 @@ jobs:
             ./Dockerfile
           build-args:
             jar_name=${{ env.JAR_NAME }}
+
+      - name: Run the built container
+        run: |
+          docker run -d -p 8080:8080 ${{ env.APP_NAME }}:latest
+          sleep 10  # Give some time for the app to start up
+
+      - name: Test the running application
+        run: |
+          curl -s http://localhost:8080 | grep 'Some expected string in your homepage'
