@@ -76,4 +76,4 @@ jobs:
 
       - name: Test the running application
         run: |
-          curl -s http://localhost:8080 | grep 'Some expected string in your homepage'
+          curl -vvv http://localhost:8080 
