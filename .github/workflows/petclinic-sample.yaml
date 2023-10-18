@@ -75,9 +75,14 @@ jobs:
       - uses: actions/download-artifact@v2
         with:
           name: ${{ env.JAR_NAME }}
-          
+
       - name: List directory contents
-        run: ls -al
+        run: ls -lath . && pwd
+
+     # Exit pipeline 
+      - name: Exit pipeline
+        if: github.event_name == 'workflow_dispatch'
+        run: exit 0
 
       # Use buildah to build the application image with the jar inside.
       - name: Build Image
