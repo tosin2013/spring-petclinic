@@ -113,10 +113,7 @@ jobs:
     env:
       IMAGE_PATH: ${{ needs.build-push-image.outputs.registry-path }}
     steps:
-      # Use the commit short-sha as the suffix of the app_name
-      - name: Get commit short-sha
-        id: commit-data
-        uses: redhat-actions/common/commit-data@v1
+
       # Setup oc CLI
       - name: Setup OC CLI
         uses: redhat-actions/oc-login@v1
@@ -141,7 +138,7 @@ jobs:
         env:
           IMAGE: ${{ env.IMAGE_PATH }}
         with:
-          app_name: ${{ env.APP_NAME }}-${{ steps.commit-data.outputs.short_sha }}
+          app_name: ${{ env.APP_NAME }}
           image: ${{ env.IMAGE }}
           namespace: ${{ secrets.OPENSHIFT_NAMESPACE }}
           build_env: |
