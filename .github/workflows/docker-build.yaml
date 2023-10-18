@@ -90,6 +90,7 @@ jobs:
 
       - name: Run the built container
         run: |
+          docker images 
           docker run -d -p 8080:8080 ${{ env.APP_NAME }}:latest
           sleep 10  # Give some time for the app to start up
 
