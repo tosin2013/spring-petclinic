@@ -75,6 +75,9 @@ jobs:
       - uses: actions/download-artifact@v2
         with:
           name: ${{ env.JAR_NAME }}
+          
+      - name: List directory contents
+        run: ls -al
 
       # Use buildah to build the application image with the jar inside.
       - name: Build Image
