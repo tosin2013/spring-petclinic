@@ -104,3 +104,34 @@ jobs:
           password: ${{ secrets.REGISTRY_PASSWORD }}
 
       # For deploying to OpenShift, see https://github.com/redhat-actions/oc-new-app/blob/main/.github/workflows/example.yml
+        #####################################################################################################################
+  ## The deploy-to-openshift job deploys the container image to an OpenShift cluster.
+  deploy-to-openshift:
+    name: Deploy to OpenShift
+    runs-on: ubuntu-20.04
+    needs: build-push-image
+    env:
+      IMAGE_PATH: ${{ needs.build-push-image.outputs.registry-path }}
+    steps:
+      # Setup oc CLI
+      - name: Setup OC CLI
+        uses: redhat-actions/oc-login@v1
+        with:
+          openshift_server_url: ${{ secrets.OPENSHIFT_SERVER_URL }}
+          openshift_token: ${{ secrets.OPENSHIFT_TOKEN }}
+          insecure_skip_tls_verify: true
+          namespace: ${{ secrets.OPENSHIFT_NAMESPACE }}
+
+      # Create a new application on OpenShift from the pushed image.
+      # It will create all required resources (like Deployment, Service, Route).
+      - name: Deploy to OpenShift
+        run: |
+          oc new-app $IMAGE_PATH --name=$APP_NAME
+          oc expose svc/$APP_NAME
+
+      # Optional: Tear down resources after a job (useful for PRs or temporary environments)
+      # This will delete the app and all its associated resources.
+      - name: Tear Down (Optional)
+        if: env.TEAR_DOWN == 'true'
+        run: |
+          oc delete all -l app=$APP_NAME
