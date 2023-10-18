@@ -19,7 +19,7 @@ jobs:
     steps:
       # Checkout spring petclinic repository
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       # Setup S2I and build container image
       - name: Setup and Build

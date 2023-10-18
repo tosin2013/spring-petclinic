@@ -22,7 +22,7 @@ jobs:
       TARGET_DIR: target/
       MVN_REPO_DIR: ~/.m2/repository
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
 
     - name: Setup Java
       uses: actions/setup-java@v2
