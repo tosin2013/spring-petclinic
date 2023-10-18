@@ -1,0 +1,36 @@
+build-and-test-image:
+    name: Build and Test Image
+    runs-on: ubuntu-20.04
+    needs: compile
+    env:
+      JAR_NAME: ${{ needs.compile.outputs.jarname }}
+      IMAGE_NAME: ${{ env.APP_NAME }}:latest
+    steps:
+      - uses: actions/checkout@v4
+  
+      # Download the jar artifact from the compile step
+      - uses: actions/download-artifact@v2
+        with:
+          name: ${{ env.JAR_NAME }}
+  
+      # The dockerfile expects the jar to be under target/
+      - name: Prepare directory structure
+        run: |
+          mkdir target/
+          mv -v ${{ env.JAR_NAME }} target/
+  
+      # Build the Docker image using Docker directly
+      - name: Build Docker Image
+        run: |
+          docker build -t ${{ env.IMAGE_NAME }} .
+  
+      # Run the built Docker container
+      - name: Run the built container
+        run: |
+          docker run -d -p 8080:8080 ${{ env.IMAGE_NAME }}
+          sleep 10  # Give some time for the app to start up
+  
+      # Test the running application
+      - name: Test the running application
+        run: |
+          curl -v http://localhost:8080 
