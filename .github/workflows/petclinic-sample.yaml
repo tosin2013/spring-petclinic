@@ -113,6 +113,10 @@ jobs:
     env:
       IMAGE_PATH: ${{ needs.build-push-image.outputs.registry-path }}
     steps:
+      # Use the commit short-sha as the suffix of the app_name
+      - name: Get commit short-sha
+        id: commit-data
+        uses: redhat-actions/common/commit-data@v1
       # Setup oc CLI
       - name: Setup OC CLI
         uses: redhat-actions/oc-login@v1
@@ -122,12 +126,26 @@ jobs:
           insecure_skip_tls_verify: true
           namespace: ${{ secrets.OPENSHIFT_NAMESPACE }}
 
-      # Create a new application on OpenShift from the pushed image.
-      # It will create all required resources (like Deployment, Service, Route).
-      - name: Deploy to OpenShift
+      - name: Create Image stream from the image
+        if: ${{ env.IMAGE_PATH == 'IMAGE_STREAM' }}
         run: |
-          oc new-app $IMAGE_PATH --name=$APP_NAME
-          oc expose svc/$APP_NAME
+          oc create is ${{ env.APP_NAME }}-${{ github.run_id }}
+          oc import-image ${{ env.APP_NAME }}-${{ github.run_id }} --from ${{ env.IMAGE_PATH }}
+
+            
+      # This step will create a deployment, service, and route to run your app and expose it to the internet.
+      - name: Create and expose app
+        id: oc-new-app
+        # uses: redhat-actions/oc-new-app@v1 Test the checked-out version of this action - a user would need the above 'uses'.
+        uses: ./
+        env:
+          IMAGE: ${{ env.IMAGE_PATH }}
+        with:
+          app_name: ${{ env.APP_NAME }}-${{ steps.commit-data.outputs.short_sha }}
+          image: ${{ env.IMAGE }}
+          namespace: ${{ secrets.OPENSHIFT_NAMESPACE }}
+          build_env: |
+            MY_ENV=MY_VALUE
 
       # Optional: Tear down resources after a job (useful for PRs or temporary environments)
       # This will delete the app and all its associated resources.
