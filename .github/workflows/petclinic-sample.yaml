@@ -78,8 +78,7 @@ jobs:
 
       - name: Prepare directory structure
         run: |
-          mkdir target/
-          mv -v ${{ env.JAR_NAME }} target/
+          ls -R /home/runner/work/spring-petclinic/spring-petclinic
 
       - name: List directory contents
         run: ls -lath . && pwd
@@ -93,7 +92,7 @@ jobs:
           tags: ${{ env.IMAGE_TAGS }}
           oci: true
           base-image: docker.io/fabric8/java-alpine-openjdk11-jre
-          content: target/
+          content: /home/runner/work/spring-petclinic/spring-petclinic
           entrypoint: java -jar spring-petclinic*.jar
           port: ${{ env.APP_PORT }}
 
