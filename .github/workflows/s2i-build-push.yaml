@@ -39,3 +39,16 @@ jobs:
           registry: ${{ env.IMAGE_REGISTRY }}
           username: ${{ secrets.REGISTRY_USER }}
           password: ${{ secrets.REGISTRY_PASSWORD }}
+
+      - name: Run the built container
+        run: |
+          docker run -d --name test-container -p 8080:8080   ${{ steps.build_image.outputs.image }}:${{ steps.build_image.outputs.tags }}
+          sleep 10  # Give some time for the app to start up
+
+      - name: Print Docker logs
+        run: |
+          docker logs test-container
+          
+      - name: Test the running application
+        run: |
+          curl -vvv http://localhost:8080 
