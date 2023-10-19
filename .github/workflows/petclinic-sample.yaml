@@ -6,6 +6,7 @@ env:
   IMAGE_REGISTRY_NAMESPACE: takinosh
   TEST_NAMESPACE: ${{ secrets.OPENSHIFT_NAMESPACE }}
   APP_NAME: spring-petclinic
+  IMAGE_TAGS: v1
   APP_PORT: 8080
   TEAR_DOWN: false
 
