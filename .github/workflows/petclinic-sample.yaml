@@ -71,7 +71,7 @@ jobs:
         oci: true
         base-image: docker.io/fabric8/java-alpine-openjdk11-jre
         dockerfile: |
-          FROM ${{ env.BASE_IMAGE }}
+          FROM docker.io/fabric8/java-alpine-openjdk11-jre
           COPY target/${{ env.JAR_NAME }} app.jar
           ENTRYPOINT ["java", "-jar", "/app.jar"]      
         build-args: |
@@ -83,8 +83,8 @@ jobs:
       id: push-to-quay
       uses: redhat-actions/push-to-registry@v2
       with:
-        image: ${{ steps.build-image.outputs.image }}
-        tags: ${{ steps.build-image.outputs.tags }}
+        image: ${{ env.APP_NAME }} 
+        tags:  ${{ env.IMAGE_TAGS }}
         registry: ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_REGISTRY_NAMESPACE }}
         username: ${{ secrets.REGISTRY_USER }}
         password: ${{ secrets.REGISTRY_PASSWORD }}
