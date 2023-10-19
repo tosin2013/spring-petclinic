@@ -66,10 +66,10 @@ jobs:
     # Build image using Buildah action
     - name: Build Image
       id: build_image
-      uses: ./buildah-build/
+      uses: redhat-actions/buildah-build@v2
       with:
         image: ${{ env.IMAGE_NAME }}
-        tags: 'latest ${{ github.sha }}'
+        tags: 'latest ${{ steps.commit-data.outputs.short_sha }}}'
         base-image: 'registry.access.redhat.com/openjdk/openjdk-11-rhel7'
         # To avoid hardcoding a particular version of the binary.
         content: |
