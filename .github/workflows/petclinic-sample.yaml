@@ -69,7 +69,7 @@ jobs:
       uses: redhat-actions/buildah-build@v2
       with:
         image: ${{ env.IMAGE_NAME }}
-        tags: 'latest ${{ steps.commit-data.outputs.short_sha }}}'
+        tags: 'latest ${{ steps.commit-data.outputs.short_sha }}'
         base-image: 'registry.access.redhat.com/openjdk/openjdk-11-rhel7'
         # To avoid hardcoding a particular version of the binary.
         content: |
