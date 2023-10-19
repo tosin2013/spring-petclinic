@@ -112,7 +112,9 @@ jobs:
 
       - name: Run the built container
         run: |
-          docker run -d --name test-container -p 8080:8080   ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_REGISTRY_NAMESPACE }}/${{ env.APP_NAME }}:${{ env.IMAGE_TAGS }}
+          # list directory of docker 
+          docker run --name test-container -p 8080:8080   ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_REGISTRY_NAMESPACE }}/${{ env.APP_NAME }}:${{ env.IMAGE_TAGS }} ls
+          docker run -d --name test-container -p 8080:8080   ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_REGISTRY_NAMESPACE }}/${{ env.APP_NAME }}:${{ env.IMAGE_TAGS }} 
           sleep 10  # Give some time for the app to start up
 
       - name: Print Docker logs
