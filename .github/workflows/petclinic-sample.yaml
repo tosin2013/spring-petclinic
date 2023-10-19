@@ -39,11 +39,10 @@ jobs:
     # It will contain, eg. "spring-petclinic-2.3.0.BUILD-SNAPSHOT.jar"
     - name: Get jar filename
       id: get-jarname
-      run: |
-        export JAR_NAME="$(basename $(ls target/*.jar))"
-        echo "Petclinic jar is $JAR_NAME"
-        echo "::set-output name=jarname::$JAR_NAME"
-        echo "JAR_NAME=$JAR_NAME" >> $GITHUB_ENV
+      uses: actions/set-env@v4
+      with:
+        name: JAR_NAME
+        value: "$(basename $(ls target/*.jar))"
 
     # Upload the jar for future jobs to use.
     - uses: actions/upload-artifact@v2
