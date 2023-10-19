@@ -39,10 +39,10 @@ jobs:
     # It will contain, eg. "spring-petclinic-2.3.0.BUILD-SNAPSHOT.jar"
     - name: Get jar filename
       id: get-jarname
-      uses: actions/set-env@v4
-      with:
-        name: JAR_NAME
-        value: "$(basename $(ls target/*.jar))"
+      run: |
+        export JAR_NAME="$(basename $(ls target/*.jar))"
+        echo "Petclinic jar is $JAR_NAME"
+        echo "JAR_NAME=$JAR_NAME" >> $GITHUB_ENV
 
     # Upload the jar for future jobs to use.
     - uses: actions/upload-artifact@v2
@@ -50,10 +50,6 @@ jobs:
         name: ${{ env.JAR_NAME }}
         path: ${{ env.TARGET_DIR }}/${{ env.JAR_NAME }}
         if-no-files-found: error
-
-    - name: Set JAR_NAME in env variables
-      run: |
-        echo "JAR_NAME=${{ env.JAR_NAME }}" >> $GITHUB_ENV
 
     # Use the commit short-sha as the suffix of the app_name
     - name: Get commit short-sha
