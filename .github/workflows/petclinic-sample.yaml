@@ -21,8 +21,6 @@ jobs:
     env:
       TARGET_DIR: target/
       MVN_REPO_DIR: ~/.m2/repository
-      APP_NAME: my-app
-      APP_PORT: 8080
     steps:
     - uses: actions/checkout@v4
 
@@ -72,8 +70,6 @@ jobs:
     env:
       JAR_NAME: ${{ needs.compile.outputs.jarname }}
       IMAGE_TAGS: latest ${{ needs.compile.outputs.commit_sha }}
-      APP_NAME: my-app
-      APP_PORT: 8080
     steps:
       # Download the jar artifact from the compile step
       - uses: actions/download-artifact@v3
