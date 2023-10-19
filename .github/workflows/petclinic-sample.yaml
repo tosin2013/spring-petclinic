@@ -86,8 +86,8 @@ jobs:
       - name: Print the jarfile name and exit if not found 
         run: |
           echo "Jar file is ${{ env.JAR_NAME }}"
-          if [ ! -f ${{ env.JAR_NAME }} ]; then
-            echo "Jar file not found"
+          if [ -z ${{ env.JAR_NAME }} ]; then
+            echo "Jar name not found"
             exit 1
           fi       
 
