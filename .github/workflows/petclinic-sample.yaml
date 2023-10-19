@@ -101,10 +101,10 @@ jobs:
   deploy-to-openshift:
     name: Deploy to OpenShift
     runs-on: ubuntu-20.04
-    needs: build-push-image
+    needs: compile
     env:
-      IMAGE_PATH: ${{ needs.build-push-image.outputs.registry-path }}
-      TAG: ${{ needs.build-push-image.outputs.tags }}
+      IMAGE_PATH: ${{ needs.compile.outputs.registry-path }}
+      TAG: ${{ needs.compile.outputs.tags }}
     steps:
 
       # Setup oc CLI
