@@ -91,10 +91,10 @@ jobs:
       #    fi       
 
       # The dockerfile expects the jar to be under target/
-      - name: Fake target/ dir
-        run: |
-          mkdir target/
-          mv -v *-SNAPSHOT.jar target/
+      #- name: Fake target/ dir
+      #  run: |
+      #    mkdir target/
+      #    mv -v *-SNAPSHOT.jar target/
         
 
       # Use buildah to build the application image with the jar inside.
