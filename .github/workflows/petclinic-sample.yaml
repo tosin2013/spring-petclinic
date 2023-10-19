@@ -68,7 +68,7 @@ jobs:
       id: build_image
       uses: redhat-actions/buildah-build@v2
       with:
-        image: ${{ env.IMAGE_NAME }}
+        image: ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_REGISTRY_NAMESPACE }}/${{ env.IMAGE_NAME }}
         tags: ${{ env.IMAGE_TAGS }}
         base-image: 'registry.access.redhat.com/openjdk/openjdk-11-rhel7'
         # To avoid hardcoding a particular version of the binary.
