@@ -68,6 +68,7 @@ jobs:
         image: ${{ env.APP_NAME }} 
         tags: ${{ env.IMAGE_TAGS }}
         oci: true
+        base-image: docker.io/fabric8/java-alpine-openjdk11-jre
         dockerfile: |
           FROM ${{ env.BASE_IMAGE }}
           COPY target/${{ env.JAR_NAME }} app.jar
