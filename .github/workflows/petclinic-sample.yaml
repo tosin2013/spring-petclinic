@@ -90,12 +90,11 @@ jobs:
       #      exit 1
       #    fi       
 
-      - name: Copy jar file to /tmp/src for s2i image 
+      # The dockerfile expects the jar to be under target/
+      - name: Fake target/ dir
         run: |
-          mkdir -p /tmp/src
-          cp -avi *-SNAPSHOT.jar /tmp/src
-          ls -lath /tmp/src
-        
+          mkdir target/
+          mv -v ${{ env.JAR_NAME }} target/
 
       # Use buildah to build the application image with the jar inside.
       - name: Build Image
