@@ -21,6 +21,8 @@ jobs:
     env:
       TARGET_DIR: target/
       MVN_REPO_DIR: ~/.m2/repository
+      APP_NAME: my-app
+      APP_PORT: 8080
     steps:
     - uses: actions/checkout@v4
 
@@ -56,45 +58,47 @@ jobs:
     - name: Get commit short-sha
       id: commit-data
       uses: redhat-actions/common/commit-data@v1
-
-  #####################################################################################################################
-  ## The build and push image job builds the container image with the petclinic jar in it,
-  ## and pushes it to an image registry.
-  ## It outputs the image tag and image URL for the next step to use when deploying to the OpenShift cluster.
-  build-push-image:
-    name: Build and Push to Quay
-    runs-on: ubuntu-20.04
-    needs: compile
-    outputs:
-      registry-path: ${{ steps.push-to-quay.outputs.registry-path }}
-    env:
-      JAR_NAME: ${{ needs.compile.outputs.jarname }}
-      IMAGE_TAGS: latest ${{ needs.compile.outputs.commit_sha }}
-    steps:
-      # Download the jar artifact from the compile step
-      - uses: actions/download-artifact@v3
-        with:
-          name: ${{ env.JAR_NAME }}
-
-      - name: Prepare directory structure
-        run: |
-          ls -R /home/runner/work/spring-petclinic/spring-petclinic
-
-      - name: List directory contents
-        run: ls -lath . && pwd
-
-      # Use buildah to build the application image with the jar inside.
-      - name: Build Image
-        id: build-image
-        uses: redhat-actions/buildah-build@v2
-        with:
-          image: ${{ env.APP_NAME }}
-          tags: ${{ env.IMAGE_TAGS }}
-          oci: true
-          base-image: docker.io/fabric8/java-alpine-openjdk11-jre
-          content: .
-          entrypoint: java -jar ${{ env.JAR_NAME }}
-          port: ${{ env.APP_PORT }}
+  
+    #####################################################################################################################
+    ## The build and push image job builds the container image with the petclinic jar in it,
+    ## and pushes it to an image registry.
+    ## It outputs the image tag and image URL for the next step to use when deploying to the OpenShift cluster.
+    build-push-image:
+      name: Build and Push to Quay
+      runs-on: ubuntu-20.04
+      needs: compile
+      outputs:
+        registry-path: ${{ steps.push-to-quay.outputs.registry-path }}
+      env:
+        JAR_NAME: ${{ needs.compile.outputs.jarname }}
+        IMAGE_TAGS: latest ${{ needs.compile.outputs.commit_sha }}
+        APP_NAME: my-app
+        APP_PORT: 8080
+      steps:
+        # Download the jar artifact from the compile step
+        - uses: actions/download-artifact@v3
+          with:
+            name: ${{ env.JAR_NAME }}
+  
+        - name: Prepare directory structure
+          run: |
+            ls -R /home/runner/work/spring-petclinic/spring-petclinic
+  
+        - name: List directory contents
+          run: ls -lath . && pwd
+  
+        # Use buildah to build the application image with the jar inside.
+        - name: Build Image
+          id: build-image
+          uses: redhat-actions/buildah-build@v2
+          with:
+            image: ${{ env.APP_NAME }}
+            tags: ${{ env.IMAGE_TAGS }}
+            oci: true
+            base-image: docker.io/fabric8/java-alpine-openjdk11-jre
+            content: .
+            entrypoint: java -jar ${{ env.JAR_NAME }}
+            port: ${{ env.APP_PORT }}
 
       # Push the built image to our image registry so it can be pulled into the OpenShift cluster.
       - name: Push to Quay
