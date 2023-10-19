@@ -56,19 +56,25 @@ jobs:
       id: commit-data
       uses: redhat-actions/common/commit-data@v1
      
-    # Use buildah to build the application image with the jar inside.
+    - name: Download JAR artifact
+      uses: actions/download-artifact@v2
+      with: 
+        name: petclinic-app
+        path: target
+    
     - name: Build Image
-      id: build-image
       uses: redhat-actions/buildah-build@v2
       with:
-        image: ${{ env.APP_NAME }}
+        image: ${{ env.APP_NAME }} 
         tags: ${{ env.IMAGE_TAGS }}
         oci: true
-        base-image: docker.io/fabric8/java-alpine-openjdk11-jre
-        content: |
-          target/${{ env.JAR_NAME }}
-        entrypoint: java -jar ${{ env.JAR_NAME }}
-        port: ${{ env.APP_PORT }}
+        dockerfile: |
+          FROM ${{ env.BASE_IMAGE }}
+          COPY target/${{ env.JAR_NAME }} app.jar
+          ENTRYPOINT ["java", "-jar", "/app.jar"]      
+        build-args: |
+          JAR_FILE=${{ env.JAR_NAME }}
+          APP_PORT=${{ env.APP_PORT }}
 
     # Push the built image to our image registry so it can be pulled into the OpenShift cluster.
     - name: Push to Quay
