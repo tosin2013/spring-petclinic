@@ -68,7 +68,7 @@ jobs:
     outputs:
       registry-path: ${{ steps.push-to-quay.outputs.registry-path }}
     env:
-      JAR_NAME: ${{ env.JAR_NAME }}
+      JAR_NAME: ${{ needs.compile.outputs.jarname }}
       IMAGE_TAGS: latest ${{ needs.compile.outputs.commit_sha }}
     steps:
       # Download the jar artifact from the compile step
@@ -82,7 +82,15 @@ jobs:
 
       - name: List directory contents
         run: ls -lath . && pwd
-       
+
+      - name: Print the jarfile name and exit if not found 
+        run: |
+          echo "Jar file is ${{ env.JAR_NAME }}"
+          if [ ! -f ${{ env.JAR_NAME }} ]; then
+            echo "Jar file not found"
+            exit 1
+          fi       
+
       - name: Copy jar file to /tmp/src for s2i image 
         run: |
           mkdir -p /tmp/src
