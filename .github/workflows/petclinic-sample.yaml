@@ -82,18 +82,18 @@ jobs:
       - name: List directory contents
         run: ls -lath . && pwd
 
-      - name: Print the jarfile name and exit if not found 
-        run: |
-          echo "Jar file is ${{ env.JAR_NAME }}"
-          if [ -z ${{ env.JAR_NAME }} ]; then
-            echo "Jar name not found"
-            exit 1
-          fi       
+      #- name: Print the jarfile name and exit if not found 
+      #  run: |
+      #    echo "Jar file is ${{ env.JAR_NAME }}"
+      #    if [ -z ${{ env.JAR_NAME }} ]; then
+      #      echo "Jar name not found"
+      #      exit 1
+      #    fi       
 
       - name: Copy jar file to /tmp/src for s2i image 
         run: |
           mkdir -p /tmp/src
-          cp ${{ env.JAR_NAME }} /tmp/src
+          cp *-SNAPSHOT.jar /tmp/src
           ls -lath /tmp/src
         
 
