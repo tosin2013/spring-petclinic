@@ -55,89 +55,48 @@ jobs:
     - name: Get commit short-sha
       id: commit-data
       uses: redhat-actions/common/commit-data@v1
-  
-  #####################################################################################################################
-  ## The build and push image job builds the container image with the petclinic jar in it,
-  ## and pushes it to an image registry.
-  ## It outputs the image tag and image URL for the next step to use when deploying to the OpenShift cluster.
-  build-push-image:
-    name: Build and Push to Quay
-    runs-on: ubuntu-20.04
-    needs: compile
-    outputs:
-      registry-path: ${{ steps.push-to-quay.outputs.registry-path }}
-    env:
-      JAR_NAME: ${{ needs.compile.outputs.jarname }}
-      IMAGE_TAGS: latest ${{ needs.compile.outputs.commit_sha }}
-    steps:
-      # Download the jar artifact from the compile step
-      - uses: actions/download-artifact@v3
-        with:
-          name: ${{ env.JAR_NAME }}
+     
+    # Use buildah to build the application image with the jar inside.
+    - name: Build Image
+      id: build-image
+      uses: redhat-actions/buildah-build@v2
+      with:
+        image: ${{ env.APP_NAME }}
+        tags: ${{ env.IMAGE_TAGS }}
+        oci: true
+        base-image: docker.io/fabric8/java-alpine-openjdk11-jre
+        content: |
+          target/${{ env.JAR_NAME }}
+        if-no-files-found: error
+        entrypoint: java -jar ${{ env.JAR_NAME }}
+        port: ${{ env.APP_PORT }}
 
-      - name: Prepare directory structure
-        run: |
-          ls -R /home/runner/work/spring-petclinic/spring-petclinic
+    # Push the built image to our image registry so it can be pulled into the OpenShift cluster.
+    - name: Push to Quay
+      id: push-to-quay
+      uses: redhat-actions/push-to-registry@v2
+      with:
+        image: ${{ steps.build-image.outputs.image }}
+        tags: ${{ steps.build-image.outputs.tags }}
+        registry: ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_REGISTRY_NAMESPACE }}
+        username: ${{ secrets.REGISTRY_USER }}
+        password: ${{ secrets.REGISTRY_PASSWORD }}
 
-      - name: List directory contents
-        run: ls -lath . && pwd
+    # For deploying to OpenShift, see https://github.com/redhat-actions/oc-new-app/blob/main/.github/workflows/example.yml
+      #####################################################################################################################
 
-      #- name: Print the jarfile name and exit if not found 
-      #  run: |
-      #    echo "Jar file is ${{ env.JAR_NAME }}"
-      #    if [ -z ${{ env.JAR_NAME }} ]; then
-      #      echo "Jar name not found"
-      #      exit 1
-      #    fi       
+    - name: Run the built container
+      run: |
+        docker run -d --name test-container -p 8080:8080   ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_REGISTRY_NAMESPACE }}/${{ env.APP_NAME }}:${{ env.IMAGE_TAGS }} 
+        sleep 10  # Give some time for the app to start up
 
-      # The dockerfile expects the jar to be under target/
-      - name: Fake target/ dir
-        run: |
-          mkdir /tmp/target/
-          mv -v /home/runner/work/spring-petclinic/spring-petclinic/*-SNAPSHOT.jar /tmp/target/
-          ls /tmp/target/
+    - name: Print Docker logs
+      run: |
+        docker logs test-container
         
-
-      # Use buildah to build the application image with the jar inside.
-      - name: Build Image
-        id: build-image
-        uses: redhat-actions/buildah-build@v2
-        with:
-          image: ${{ env.APP_NAME }}
-          tags: ${{ env.IMAGE_TAGS }}
-          oci: true
-          base-image: docker.io/fabric8/java-alpine-openjdk11-jre
-          content: |
-           /tmp/target/spring-petclinic-2.5.0-SNAPSHOT.jar
-          entrypoint: java -jar spring-petclinic-2.5.0-SNAPSHOT.jar
-          port: ${{ env.APP_PORT }}
-
-      # Push the built image to our image registry so it can be pulled into the OpenShift cluster.
-      - name: Push to Quay
-        id: push-to-quay
-        uses: redhat-actions/push-to-registry@v2
-        with:
-          image: ${{ steps.build-image.outputs.image }}
-          tags: ${{ steps.build-image.outputs.tags }}
-          registry: ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_REGISTRY_NAMESPACE }}
-          username: ${{ secrets.REGISTRY_USER }}
-          password: ${{ secrets.REGISTRY_PASSWORD }}
-
-      # For deploying to OpenShift, see https://github.com/redhat-actions/oc-new-app/blob/main/.github/workflows/example.yml
-        #####################################################################################################################
-
-      - name: Run the built container
-        run: |
-          docker run -d --name test-container -p 8080:8080   ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_REGISTRY_NAMESPACE }}/${{ env.APP_NAME }}:${{ env.IMAGE_TAGS }} 
-          sleep 10  # Give some time for the app to start up
-
-      - name: Print Docker logs
-        run: |
-          docker logs test-container
-         
-      - name: Test the running application
-        run: |
-          curl -vvv http://localhost:8080 
+    - name: Test the running application
+      run: |
+        curl -vvv http://localhost:8080 
   ## The deploy-to-openshift job deploys the container image to an OpenShift cluster.
   deploy-to-openshift:
     name: Deploy to OpenShift
