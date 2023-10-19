@@ -92,7 +92,7 @@ jobs:
           tags: ${{ env.IMAGE_TAGS }}
           oci: true
           base-image: docker.io/fabric8/java-alpine-openjdk11-jre
-          content: /home/runner/work/spring-petclinic/spring-petclinic
+          content: .
           entrypoint: java -jar ${{ env.JAR_NAME }}
           port: ${{ env.APP_PORT }}
 
