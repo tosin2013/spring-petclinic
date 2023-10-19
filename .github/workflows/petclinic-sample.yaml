@@ -68,7 +68,7 @@ jobs:
     outputs:
       registry-path: ${{ steps.push-to-quay.outputs.registry-path }}
     env:
-      JAR_NAME: ${{ needs.compile.outputs.jarname }}
+      JAR_NAME: ${{ env.JAR_NAME }}
       IMAGE_TAGS: latest ${{ needs.compile.outputs.commit_sha }}
     steps:
       # Download the jar artifact from the compile step
