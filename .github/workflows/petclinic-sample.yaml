@@ -107,7 +107,7 @@ jobs:
           oci: true
           base-image: docker.io/fabric8/java-alpine-openjdk11-jre
           content: |
-            target/spring-petclinic-2.5.0.BUILD-SNAPSHOT.jar
+            /home/runner/work/spring-petclinic/spring-petclinic/*-SNAPSHOT.jar
           entrypoint: java -jar spring-petclinic-2.5.0.BUILD-SNAPSHOT.jar
           port: ${{ env.APP_PORT }}
 
