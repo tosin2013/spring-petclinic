@@ -106,8 +106,9 @@ jobs:
           tags: ${{ env.IMAGE_TAGS }}
           oci: true
           base-image: docker.io/fabric8/java-alpine-openjdk11-jre
-          content: /tmp/src
-          entrypoint: java -jar spring-petclinic*.jar
+          content: |
+            target/spring-petclinic-2.5.0.BUILD-SNAPSHOT.jar
+          entrypoint: java -jar spring-petclinic-2.5.0.BUILD-SNAPSHOT.jar
           port: ${{ env.APP_PORT }}
 
       # Push the built image to our image registry so it can be pulled into the OpenShift cluster.
