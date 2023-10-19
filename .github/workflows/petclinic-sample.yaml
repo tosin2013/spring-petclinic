@@ -52,6 +52,10 @@ jobs:
         path: ${{ env.TARGET_DIR }}/${{ env.JAR_NAME }}
         if-no-files-found: error
 
+    - name: Set JAR_NAME in env variables
+      run: |
+        echo "JAR_NAME=${{ env.JAR_NAME }}" >> $GITHUB_ENV
+
     # Use the commit short-sha as the suffix of the app_name
     - name: Get commit short-sha
       id: commit-data
@@ -85,7 +89,7 @@ jobs:
 
       - name: Print the jarfile name and exit if not found 
         run: |
-          echo "Jar file is ${{ steps.get-jarname.outputs.jarname }}"
+          echo "Jar file is ${{ env.JAR_NAME }}"
           if [ -z ${{ env.JAR_NAME }} ]; then
             echo "Jar name not found"
             exit 1
