@@ -71,9 +71,12 @@ jobs:
         oci: true
         base-image: docker.io/fabric8/java-alpine-openjdk11-jre
         dockerfile: |
+          FROM maven AS build
+          COPY . /app
+          RUN mvn package
+          
           FROM docker.io/fabric8/java-alpine-openjdk11-jre
-          COPY target/${{ env.JAR_NAME }} app.jar
-          ENTRYPOINT ["java", "-jar", "/app.jar"]      
+          COPY --from=build /app/target/*.jar /app.jar
         build-args: |
           JAR_FILE=${{ env.JAR_NAME }}
           APP_PORT=${{ env.APP_PORT }}
