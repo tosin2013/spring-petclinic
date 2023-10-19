@@ -67,7 +67,6 @@ jobs:
         base-image: docker.io/fabric8/java-alpine-openjdk11-jre
         content: |
           target/${{ env.JAR_NAME }}
-        if-no-files-found: error
         entrypoint: java -jar ${{ env.JAR_NAME }}
         port: ${{ env.APP_PORT }}
 
