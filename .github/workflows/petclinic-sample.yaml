@@ -94,7 +94,8 @@ jobs:
       - name: Fake target/ dir
         run: |
           mkdir target/
-          mv -v ${{ env.JAR_NAME }} target/
+          mv -v *-SNAPSHOT.jar target/
+        
 
       # Use buildah to build the application image with the jar inside.
       - name: Build Image
