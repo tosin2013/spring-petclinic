@@ -71,12 +71,9 @@ jobs:
         oci: true
         base-image: docker.io/fabric8/java-alpine-openjdk11-jre
         dockerfile: |
-          FROM maven AS build
-          COPY . /app
-          RUN mvn package
-          
-          FROM docker.io/fabric8/java-alpine-openjdk11-jre
-          COPY --from=build /app/target/*.jar /app.jar
+          FROM ${{ env.BASE_IMAGE }}
+          COPY target/${{ env.JAR_NAME }} app.jar
+          ENTRYPOINT ["java", "-jar", "/app.jar"]      
         build-args: |
           JAR_FILE=${{ env.JAR_NAME }}
           APP_PORT=${{ env.APP_PORT }}
@@ -87,7 +84,7 @@ jobs:
       uses: redhat-actions/push-to-registry@v2
       with:
         image: ${{ env.APP_NAME }} 
-        tags:  ${{ env.IMAGE_TAGS }}
+        tags: ${{ env.IMAGE_TAGS }}
         registry: ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_REGISTRY_NAMESPACE }}
         username: ${{ secrets.REGISTRY_USER }}
         password: ${{ secrets.REGISTRY_PASSWORD }}
