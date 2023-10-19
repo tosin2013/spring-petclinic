@@ -93,7 +93,7 @@ jobs:
       - name: Copy jar file to /tmp/src for s2i image 
         run: |
           mkdir -p /tmp/src
-          cp *-SNAPSHOT.jar /tmp/src
+          cpn  -avi *-SNAPSHOT.jar /tmp/src
           ls -lath /tmp/src
         
 
