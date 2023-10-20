@@ -73,11 +73,11 @@ jobs:
         base-image: 'registry.access.redhat.com/openjdk/openjdk-11-rhel7'
         # To avoid hardcoding a particular version of the binary.
         content: |
-          ./target/spring-petclinic*.jar
+          ./target/spring-petclinic-2.5.0-SNAPSHOT.jar
         entrypoint: |
           java
           -jar
-          spring-petclinic*.jar
+          spring-petclinic-2.5.0-SNAPSHOT.jar
         port: 8080
         arch: amd64
         #workdir: "."
