@@ -80,7 +80,7 @@ jobs:
           spring-petclinic*.jar
         port: 8080
         arch: amd64
-        workdir: "."
+        #workdir: "."
 
     # Push the built image to our image registry so it can be pulled into the OpenShift cluster.
     - name: Push to Quay
